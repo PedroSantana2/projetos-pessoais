@@ -1,6 +1,7 @@
 from cliente import Cliente
 from conta import Conta
 from banco_de_dados import Dados
+from gastar_dinheiro import Gastar
 from sys import exit
 import re
 
@@ -223,12 +224,16 @@ def perguntas_conta(conta_criada):
 # Status debugação: 1
 def perguntas_conta_acesso(conta_criada):
     while True:
-        print('\t[ 1 ] Para alterar valores da conta.\n\t[ 2 ] Para sair do programa.')
-        reposta = input('\t=> ').strip()
-        if reposta == '1':
+        print('\t[ 1 ] Para alterar valores da conta.\n\t[ 2 ] Para jogar o modo de apostas.\n\t[ 3 ] Para sair do programa.')
+        resposta = input('\t=> ').strip()
+        if resposta == '1':
             perguntas_dentro_da_conta(conta_criada)
 
-        elif reposta == '2':
+        elif resposta == '2':
+            if caca_niquel(conta_criada):
+                continue
+
+        elif resposta == '3':
             return True
 
         else:
@@ -320,14 +325,49 @@ def iniciar_programa():
 
         elif reposta == '2':
             conta_acesso = acessar_conta()  # Entrando no modo acesso a conta
-            comando_if = acessar_conta_editavel(conta_acesso)
+            comando_dicionario = acessar_conta_editavel(conta_acesso)
             break
-
         elif reposta == '3':
-            exit()  # Saindo do programa
+            exit()
 
         else:
             print('\t[ ! ] Resposta ínvalida, tente novamente!')  # Mensagem de erro
+
+
+# Status debugação: 8
+def inicar_niquel():
+    while True:
+        print('\n\t[ ? ] Informe o valor da aposta.')
+        resposta = input('\t=> ')
+        try:
+            float(resposta)
+
+        except:
+            if mensagem_erro_dados():
+                continue
+
+        if float(resposta) <= 0:  # Não aceita valores negativos
+            mensagem_erro_dados()
+        else:
+            return float(resposta)
+
+
+# Status debugação: 6
+def caca_niquel(conta_criada):
+    while True:
+        conta_para_jogar = Gastar(conta_criada.saldo, conta_criada.limite)
+        valor_aposta = inicar_niquel()
+        if conta_criada.saldo - valor_aposta < (conta_criada.limite * -1):
+            print('\n\t[ ! ] Ação ínvalida, limite atingido!')
+            print('\t[ ! ] O saldo é de: R${:.2f}'.format(conta_criada.saldo))
+            print('\t[ ! ] O limite da conta é de: R${:.2f}\n'.format(conta_criada.limite))
+            continue
+        resultado_niquel = conta_para_jogar.niquel(valor_aposta)
+        if resultado_niquel == 0:
+            conta_criada.sacar(valor_aposta, conta_criada.saldo, conta_criada.limite)
+        else:
+            conta_criada.depositar(resultado_niquel)
+        return True
 
 
 # Iniciando programa:

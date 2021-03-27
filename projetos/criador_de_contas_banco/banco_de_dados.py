@@ -5,4 +5,4 @@ class Dados:
 
     def conferir(self, cpf, senha):
         conta = 0
-
+        
